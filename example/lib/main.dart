@@ -65,7 +65,9 @@ class _MyAppState extends State<MyApp> {
                   File(path)
                     ..createSync()
                     ..writeAsBytesSync(bytes);
-
+                  AppInstaller.registerHandler((data) {
+                    debugPrint("callBackData: $data");
+                  });
                   AppInstaller.installApk(path, actionRequired: false);
                 },
                 icon: Icon(Icons.arrow_downward),

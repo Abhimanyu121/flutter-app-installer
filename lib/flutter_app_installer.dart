@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
+typedef MethodCallBack = void Function(InstallStatus data);
+
 class AppInstaller {
   static const MethodChannel _channel =
       const MethodChannel('flutter_app_installer');
@@ -42,4 +44,32 @@ class AppInstaller {
       });
     }
   }
+
+  static void registerHandler(MethodCallBack callback) async {
+    if (Platform.isAndroid) {
+      _channel.setMethodCallHandler((call) async {
+        switch (call.method) {
+          case "installer.success":
+            {
+              callback.call(
+                  InstallStatus(status: true, packageName: call.arguments));
+              return null;
+            }
+          case "installer.faliure":
+            {
+              callback.call(
+                  InstallStatus(status: false, packageName: call.arguments));
+              return null;
+            }
+        }
+        return null;
+      });
+    }
+  }
+}
+
+class InstallStatus {
+  final bool status;
+  final String packageName;
+  InstallStatus({required this.status, required this.packageName});
 }

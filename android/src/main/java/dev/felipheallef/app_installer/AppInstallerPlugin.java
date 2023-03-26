@@ -70,6 +70,8 @@ public class AppInstallerPlugin implements FlutterPlugin, ActivityAware,
 
     private void onAttachedToEngine(Context applicationContext, BinaryMessenger messenger) {
         this.applicationContext = applicationContext;
+        Log.d(TAG, "Initing");
+
         methodChannel = new MethodChannel(messenger, "flutter_app_installer");
         methodChannel.setMethodCallHandler(this);
     }
@@ -127,6 +129,10 @@ public class AppInstallerPlugin implements FlutterPlugin, ActivityAware,
 
     @Override
     public void onMethodCall(MethodCall call, @NonNull Result result) {
+        if(this.methodChannel != null){
+            Log.d(TAG, "Not null here");
+
+        }
         String method = call.method;
         if (method.equals("goStore")) {
             String appId = (String) call.argument("androidAppId");
@@ -362,17 +368,24 @@ public class AppInstallerPlugin implements FlutterPlugin, ActivityAware,
         Log.d(TAG, String.format("Extras: %s", extras));
         if (PACKAGE_INSTALLED_ACTION.equals(intent.getAction()) && extras != null) {
             int status = extras.getInt(PackageInstaller.EXTRA_STATUS);
+            String packageName = extras.getString(PackageInstaller.EXTRA_PACKAGE_NAME);
             String message = extras.getString(PackageInstaller.EXTRA_STATUS_MESSAGE);
+            Log.d(TAG, String.format("inside if: %s %s %s", message, packageName, status));
+
+            //methodChannel = new MethodChannel("flutter_app_installer");
+
             switch (status) {
                 case PackageInstaller.STATUS_PENDING_USER_ACTION:
+                    Log.d(TAG, String.format("Confirmation: %s", message));
+
                     // This test app isn't privileged, so the user has to confirm the install.
                     Intent confirmIntent = (Intent) extras.get(Intent.EXTRA_INTENT);
                     mActivity.startActivity(confirmIntent);
                     break;
                 case PackageInstaller.STATUS_SUCCESS:
-                    if (result != null) {
-//                        result.success();
-                    }
+                    Log.d(TAG, String.format("Message: %s", message));
+
+                    methodChannel.invokeMethod("installer.success", packageName);
                     break;
                 case PackageInstaller.STATUS_FAILURE:
                 case PackageInstaller.STATUS_FAILURE_ABORTED:
@@ -380,8 +393,12 @@ public class AppInstallerPlugin implements FlutterPlugin, ActivityAware,
                 case PackageInstaller.STATUS_FAILURE_CONFLICT:
                 case PackageInstaller.STATUS_FAILURE_INCOMPATIBLE:
                 case PackageInstaller.STATUS_FAILURE_INVALID:
-                case PackageInstaller.STATUS_FAILURE_STORAGE:
+                case PackageInstaller.STATUS_FAILURE_STORAGE: {
+                    methodChannel.invokeMethod("installer.faliure", packageName);
+                    Log.d(TAG, String.format("Message Fail: %s", message));
+
                     result.error("installApkBytes", "Install failed! " + status + ", " + message, null);
+                }
                     break;
                 default:
                     result.error("installApkBytes", "Unrecognized status received from installer: " + status, null);

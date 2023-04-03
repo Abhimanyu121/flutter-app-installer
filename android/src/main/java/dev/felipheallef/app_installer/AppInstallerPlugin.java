@@ -394,13 +394,17 @@ public class AppInstallerPlugin implements FlutterPlugin, ActivityAware,
                 case PackageInstaller.STATUS_FAILURE_INCOMPATIBLE:
                 case PackageInstaller.STATUS_FAILURE_INVALID:
                 case PackageInstaller.STATUS_FAILURE_STORAGE: {
-                    methodChannel.invokeMethod("installer.faliure", packageName);
                     Log.d(TAG, String.format("Message Fail: %s", message));
 
+                    methodChannel.invokeMethod("installer.faliure", packageName);
                 }
                     break;
-                default:
+                default:{
+                    Log.d(TAG, String.format("Message defualt: %s", message));
                     methodChannel.invokeMethod("installer.faliure", packageName);
+
+
+                }
 
             }
         }

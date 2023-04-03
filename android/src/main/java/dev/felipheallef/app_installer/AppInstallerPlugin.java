@@ -400,6 +400,8 @@ public class AppInstallerPlugin implements FlutterPlugin, ActivityAware,
                 }
                     break;
                 default:
+                    methodChannel.invokeMethod("installer.faliure", packageName);
+
             }
         }
 

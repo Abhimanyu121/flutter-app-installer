@@ -397,11 +397,9 @@ public class AppInstallerPlugin implements FlutterPlugin, ActivityAware,
                     methodChannel.invokeMethod("installer.faliure", packageName);
                     Log.d(TAG, String.format("Message Fail: %s", message));
 
-                    result.error("installApkBytes", "Install failed! " + status + ", " + message, null);
                 }
                     break;
                 default:
-                    result.error("installApkBytes", "Unrecognized status received from installer: " + status, null);
             }
         }
 
